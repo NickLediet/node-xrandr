@@ -6,15 +6,23 @@ const promiseExec = cmd => {
     exec(cmd, (error, stdout, stderr) => {
       if (error) reject(error);
 
-      resolve(stdout ? stdout : stderr);
+      resolve({ stdout, stderr });
     });
   });
 };
 
 const main = async () => {
   try {
-    const data = await promiseExec("xrandr");
-    console.log(xrandrParser(data));
+    const { stdout, stderr } = await promiseExec("xrandr");
+
+    if (stderr) {
+      console.err(stderr);
+      process.exit();
+    }
+
+    const monitors = Object.keys(xrandrParser(stdout));
+
+    console.log(monitors);
   } catch (err) {
     console.error(err);
   }
